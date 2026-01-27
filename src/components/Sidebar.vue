@@ -6,86 +6,36 @@
     </div>
 
     <!-- Navigation -->
-    <nav class="flex-1 px-4 space-y-1">
-      <SidebarButton
-        v-for="item in menuItems"
-        :key="item.path"
-        :to="item.path"
-        :label="item.label"
-        :icon="item.icon"
-      />
-    </nav>
+    <NavigationMenu :items="menuItems" />
 
     <!-- User Section -->
-    <div class="p-4 border-t border-gray-200">
-      <div class="bg-gray-50 rounded-xl p-4 space-y-3">
-        <!-- User Info -->
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-            <User class="w-5 h-5 text-blue-600" />
-          </div>
-          <div class="flex-1 min-w-0">
-            <p class="font-semibold text-gray-900 text-sm truncate">
-              {{ authStore.user?.name || 'User' }}
-            </p>
-            <p class="text-xs text-gray-500 truncate">
-              {{ authStore.user?.email || 'email@example.com' }}
-            </p>
-          </div>
-        </div>
-
-        <!-- Dark Theme Toggle -->
-        <button
-          @click="toggleDarkMode"
-          class="flex items-center justify-between w-full px-3 py-2 rounded-lg hover:bg-gray-100 transition"
-        >
-          <div class="flex items-center gap-2">
-            <Moon class="w-4 h-4 text-gray-600" />
-            <span class="text-sm text-gray-700">Dark Theme</span>
-          </div>
-          <div
-            class="w-10 h-6 rounded-full transition-colors relative"
-            :class="isDarkMode ? 'bg-indigo-600' : 'bg-gray-300'"
-          >
-            <div
-              class="absolute top-1 w-4 h-4 bg-white rounded-full transition-transform"
-              :class="isDarkMode ? 'translate-x-5' : 'translate-x-1'"
-            ></div>
-          </div>
-        </button>
-
-        <!-- Logout Button -->
-        <button
-          @click="handleLogout"
-          class="flex items-center gap-2 w-full px-3 py-2 rounded-lg hover:bg-gray-100 transition text-left"
-        >
-          <LogOut class="w-4 h-4 text-gray-600" />
-          <span class="text-sm text-gray-700">Logout</span>
-        </button>
-      </div>
+    <div class="p-4">
+      <UserMenu
+        :userName="authStore.user?.name"
+        :userEmail="authStore.user?.email"
+        v-model:isDarkMode="isDarkMode"
+        @logout="handleLogout"
+      />
     </div>
   </aside>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-import { Box, Users, TrendingUp, User, Moon, LogOut } from 'lucide-vue-next'
-import SidebarButton from './SidebarButton.vue'
+import { ListChecks, Users, TrendingUp } from 'lucide-vue-next'
 import LogoBrand from './LogoBrand.vue'
+import NavigationMenu from './NavigationMenu.vue'
+import UserMenu from './UserMenu.vue'
 import { useAuthStore } from '../stores/auth'
 
 const authStore = useAuthStore()
 const isDarkMode = ref(false)
 
 const menuItems = [
-  { path: '/inventories', label: 'Data Inventaris', icon: Box },
+  { path: '/inventories', label: 'Data Inventaris', icon: ListChecks },
   { path: '/members', label: 'Management Anggota', icon: Users },
   { path: '/analytics', label: 'Analytics', icon: TrendingUp },
 ]
-
-const toggleDarkMode = () => {
-  isDarkMode.value = !isDarkMode.value
-}
 
 const handleLogout = async () => {
   await authStore.logout()

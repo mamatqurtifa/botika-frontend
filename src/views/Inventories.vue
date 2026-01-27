@@ -71,6 +71,16 @@
       @save="saveData"
     >
       <div class="space-y-4">
+        <!-- Show Inventory ID when editing -->
+        <div v-if="isEditMode && currentInventoryId" class="space-y-2">
+          <label class="block text-sm font-medium text-gray-700">Inventaris ID</label>
+          <input
+            :value="currentInventoryId"
+            disabled
+            class="w-full px-4 py-3 rounded-xl border-2 border-transparent outline-none bg-gray-100 text-gray-500 cursor-not-allowed"
+          />
+        </div>
+
         <FormInput
           id="item_name"
           label="Barang"
@@ -117,7 +127,7 @@
     <!-- Delete Modal -->
     <DeleteModal
       :isOpen="isDeleteModalOpen"
-      :itemName="`${deleteItem?.item_name} (${deleteItem?.serial_number})`"
+      :itemName="`${deleteItem?.item_name} (${deleteItem?.inventory_id})`"
       @close="closeDeleteModal"
       @confirm="confirmDelete"
     />
@@ -140,6 +150,7 @@ const searchQuery = ref('')
 const isModalOpen = ref(false)
 const isEditMode = ref(false)
 const editingId = ref(null)
+const currentInventoryId = ref('')
 const isDeleteModalOpen = ref(false)
 const deleteItem = ref(null)
 const isLoading = ref(false)
@@ -174,6 +185,7 @@ const userOptions = computed(() => {
 
 const columns = [
   { key: 'no', label: 'No', headerClass: 'w-16' },
+  { key: 'inventory_id', label: 'Inventaris ID' },
   { key: 'item_name', label: 'Barang' },
   { key: 'type', label: 'Type' },
   { key: 'serial_number', label: 'Serial Number' },
@@ -190,6 +202,7 @@ const filteredData = computed(() => {
   const query = searchQuery.value.toLowerCase()
   return inventoryData.value.filter((item) => {
     return (
+      item.inventory_id?.toLowerCase().includes(query) ||
       item.item_name?.toLowerCase().includes(query) ||
       item.type?.toLowerCase().includes(query) ||
       item.serial_number?.toLowerCase().includes(query) ||
@@ -229,6 +242,7 @@ const fetchUsers = async () => {
 
 const openCreateModal = () => {
   isEditMode.value = false
+  currentInventoryId.value = ''
   formData.value = {
     item_name: '',
     type: '',
@@ -243,6 +257,7 @@ const openCreateModal = () => {
 const handleEdit = (row) => {
   isEditMode.value = true
   editingId.value = row.id
+  currentInventoryId.value = row.inventory_id
   formData.value = {
     item_name: row.item_name,
     type: row.type,

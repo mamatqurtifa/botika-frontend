@@ -5,7 +5,7 @@
       :class="sizeClasses.container"
     >
       <span
-        class="font-bold bg-gradient-to-br from-cyan-500 to-yellow-500 bg-clip-text text-transparent"
+        class="font-bold bg-gradient-to-r from-cyan-500 to-yellow-500 bg-clip-text text-transparent"
         :class="sizeClasses.text"
       >
         m

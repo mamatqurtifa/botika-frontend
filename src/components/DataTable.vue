@@ -1,9 +1,9 @@
 <template>
-  <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+  <div class="bg-white rounded-lg overflow-hidden">
     <!-- Table -->
     <div class="overflow-x-auto">
       <table class="w-full">
-        <thead class="bg-gray-50 border-b border-gray-200">
+        <thead>
           <tr>
             <th
               v-for="column in columns"
@@ -15,7 +15,7 @@
             </th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-200 bg-white">
+        <tbody class="divide-y divide-gray-100 bg-white">
           <tr v-for="(row, index) in paginatedData" :key="index" class="hover:bg-gray-50">
             <td
               v-for="column in columns"

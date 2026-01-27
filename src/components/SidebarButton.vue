@@ -1,7 +1,7 @@
 <template>
   <RouterLink
     :to="to"
-    class="flex items-center justify-between px-3 py-2.5 rounded-lg transition group relative"
+    class="flex items-center justify-between px-3 py-2.5 rounded-2xl transition group relative"
     :class="
       isActive ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
     "
