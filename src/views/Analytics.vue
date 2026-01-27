@@ -1,11 +1,9 @@
 <template>
   <div>
-    <!-- Header -->
     <div class="mb-6">
       <h1 class="text-2xl font-bold text-gray-900">Analytics</h1>
     </div>
 
-    <!-- Loading State -->
     <div v-if="isLoading" class="flex items-center justify-center py-12">
       <div
         class="w-8 h-8 border-4 border-gray-900 border-t-transparent rounded-full animate-spin"
@@ -13,45 +11,42 @@
     </div>
 
     <template v-else>
-      <!-- Stats Cards -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatsCard
           label="Barang Baik"
           :value="analyticsData.baik || 0"
-          :icon="CheckCircle"
-          iconBgClass="bg-green-100"
-          iconColorClass="text-green-600"
+          :icon="ClipboardCheck"
+          iconBgClass="bg-[#DAF3F7]"
+          iconColorClass="text-[#427E81]"
         />
         <StatsCard
           label="Barang Rusak"
           :value="analyticsData.rusak || 0"
           :icon="AlertTriangle"
-          iconBgClass="bg-red-100"
-          iconColorClass="text-red-600"
+          iconBgClass="bg-[#F7E6E9]"
+          iconColorClass="text-[#A18181]"
         />
         <StatsCard
           label="Dilelang"
           :value="analyticsData.dilelang || 0"
           :icon="Tag"
-          iconBgClass="bg-orange-100"
-          iconColorClass="text-orange-600"
+          iconBgClass="bg-[#F3ECDF]"
+          iconColorClass="text-[#414C1C]"
         />
         <StatsCard
           label="Tidak Dipakai"
           :value="analyticsData.tidak_dipakai || 0"
           :icon="XCircle"
-          iconBgClass="bg-gray-100"
-          iconColorClass="text-gray-600"
+          iconBgClass="bg-[#DBE6F7]"
+          iconColorClass="text-[#7A8088]"
         />
       </div>
 
-      <!-- Chart -->
-      <div class="bg-white rounded-xl border border-gray-200 p-6">
+      <div class="bg-white rounded-3xl border border-gray-200 p-6">
         <Bar :data="chartData" :options="chartOptions" />
       </div>
     </template>
 
-    <!-- Alert Modal -->
     <AlertModal
       :isOpen="isAlertOpen"
       :type="alertConfig.type"
@@ -65,7 +60,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { CheckCircle, AlertTriangle, Tag, XCircle } from 'lucide-vue-next'
+import { ClipboardCheck, AlertTriangle, Tag, XCircle } from 'lucide-vue-next'
 import StatsCard from '../components/StatsCard.vue'
 import AlertModal from '../components/AlertModal.vue'
 import { Bar } from 'vue-chartjs'
@@ -83,7 +78,6 @@ import { useAlert } from '../composables/useAlert'
 
 const { isAlertOpen, alertConfig, showError, closeAlert } = useAlert()
 
-// Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
 const isLoading = ref(false)
@@ -169,7 +163,6 @@ const chartOptions = {
   },
 }
 
-// Fetch analytics data
 const fetchAnalytics = async () => {
   isLoading.value = true
   try {
