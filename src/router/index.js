@@ -1,9 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Login from '../views/Login.vue'
-import DashboardLayout from '../layouts/DashboardLayout.vue'
-import Inventories from '../views/Inventories.vue'
-import Members from '../views/Members.vue'
-import Analysis from '../views/Analysis.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -15,26 +10,26 @@ const router = createRouter({
     {
       path: '/login',
       name: 'login',
-      component: Login,
+      component: () => import('../views/Login.vue'),
     },
     {
       path: '/',
-      component: DashboardLayout,
+      component: () => import('../layouts/DashboardLayout.vue'),
       children: [
         {
           path: 'inventories',
           name: 'inventories',
-          component: Inventories,
+          component: () => import('../views/Inventories.vue'),
         },
         {
           path: 'members',
           name: 'members',
-          component: Members,
+          component: () => import('../views/Members.vue'),
         },
         {
-          path: 'analysis',
-          name: 'analysis',
-          component: Analysis,
+          path: 'analytics',
+          name: 'analytics',
+          component: () => import('../views/Analytics.vue'),
         },
       ],
     },
