@@ -25,8 +25,12 @@
             <User class="w-5 h-5 text-blue-600" />
           </div>
           <div class="flex-1 min-w-0">
-            <p class="font-semibold text-gray-900 text-sm truncate">tiara tiara</p>
-            <p class="text-xs text-gray-500 truncate">tiara@botika.online</p>
+            <p class="font-semibold text-gray-900 text-sm truncate">
+              {{ authStore.user?.name || 'User' }}
+            </p>
+            <p class="text-xs text-gray-500 truncate">
+              {{ authStore.user?.email || 'email@example.com' }}
+            </p>
           </div>
         </div>
 
@@ -65,12 +69,12 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
 import { Box, Users, TrendingUp, User, Moon, LogOut } from 'lucide-vue-next'
 import SidebarButton from './SidebarButton.vue'
 import LogoBrand from './LogoBrand.vue'
+import { useAuthStore } from '../stores/auth'
 
-const router = useRouter()
+const authStore = useAuthStore()
 const isDarkMode = ref(false)
 
 const menuItems = [
@@ -81,10 +85,9 @@ const menuItems = [
 
 const toggleDarkMode = () => {
   isDarkMode.value = !isDarkMode.value
-  // Nanti bisa ditambahkan logic untuk apply dark mode
 }
 
-const handleLogout = () => {
-  router.push('/login')
+const handleLogout = async () => {
+  await authStore.logout()
 }
 </script>

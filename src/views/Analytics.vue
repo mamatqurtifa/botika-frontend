@@ -5,47 +5,56 @@
       <h1 class="text-2xl font-bold text-gray-900">Analytics</h1>
     </div>
 
-    <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-      <StatsCard
-        label="Barang Baik"
-        :value="25"
-        :icon="CheckCircle"
-        iconBgClass="bg-green-100"
-        iconColorClass="text-green-600"
-      />
-      <StatsCard
-        label="Barang Rusak"
-        :value="20"
-        :icon="AlertTriangle"
-        iconBgClass="bg-red-100"
-        iconColorClass="text-red-600"
-      />
-      <StatsCard
-        label="Dilelang"
-        :value="10"
-        :icon="Tag"
-        iconBgClass="bg-orange-100"
-        iconColorClass="text-orange-600"
-      />
-      <StatsCard
-        label="Tidak Dipakai"
-        :value="10"
-        :icon="XCircle"
-        iconBgClass="bg-gray-100"
-        iconColorClass="text-gray-600"
-      />
+    <!-- Loading State -->
+    <div v-if="isLoading" class="flex items-center justify-center py-12">
+      <div
+        class="w-8 h-8 border-4 border-gray-900 border-t-transparent rounded-full animate-spin"
+      ></div>
     </div>
 
-    <!-- Chart -->
-    <div class="bg-white rounded-xl border border-gray-200 p-6">
-      <Bar :data="chartData" :options="chartOptions" />
-    </div>
+    <template v-else>
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <StatsCard
+          label="Barang Baik"
+          :value="analyticsData.baik || 0"
+          :icon="CheckCircle"
+          iconBgClass="bg-green-100"
+          iconColorClass="text-green-600"
+        />
+        <StatsCard
+          label="Barang Rusak"
+          :value="analyticsData.rusak || 0"
+          :icon="AlertTriangle"
+          iconBgClass="bg-red-100"
+          iconColorClass="text-red-600"
+        />
+        <StatsCard
+          label="Dilelang"
+          :value="analyticsData.dilelang || 0"
+          :icon="Tag"
+          iconBgClass="bg-orange-100"
+          iconColorClass="text-orange-600"
+        />
+        <StatsCard
+          label="Tidak Dipakai"
+          :value="analyticsData.tidak_dipakai || 0"
+          :icon="XCircle"
+          iconBgClass="bg-gray-100"
+          iconColorClass="text-gray-600"
+        />
+      </div>
+
+      <!-- Chart -->
+      <div class="bg-white rounded-xl border border-gray-200 p-6">
+        <Bar :data="chartData" :options="chartOptions" />
+      </div>
+    </template>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { CheckCircle, AlertTriangle, Tag, XCircle } from 'lucide-vue-next'
 import StatsCard from '../components/StatsCard.vue'
 import { Bar } from 'vue-chartjs'
@@ -58,21 +67,35 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js'
+import { analyticsService } from '../services/analyticsService'
 
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
-const chartData = {
+const isLoading = ref(false)
+const analyticsData = ref({
+  baik: 0,
+  rusak: 0,
+  tidak_dipakai: 0,
+  dilelang: 0,
+})
+
+const chartData = computed(() => ({
   labels: ['Barang Baik', 'Barang Rusak', 'Dilelang', 'Tidak Dipakai'],
   datasets: [
     {
-      data: [25, 20, 10, 10],
+      data: [
+        analyticsData.value.baik,
+        analyticsData.value.rusak,
+        analyticsData.value.dilelang,
+        analyticsData.value.tidak_dipakai,
+      ],
       backgroundColor: '#8b5cf6',
       borderRadius: 8,
       barThickness: 80,
     },
   ],
-}
+}))
 
 const chartOptions = {
   responsive: true,
@@ -99,9 +122,8 @@ const chartOptions = {
   scales: {
     y: {
       beginAtZero: true,
-      max: 100,
       ticks: {
-        stepSize: 20,
+        stepSize: 5,
         font: {
           size: 12,
         },
@@ -132,4 +154,24 @@ const chartOptions = {
     },
   },
 }
+
+// Fetch analytics data
+const fetchAnalytics = async () => {
+  isLoading.value = true
+  try {
+    const response = await analyticsService.getData()
+    if (response.data.success) {
+      analyticsData.value = response.data.data
+    }
+  } catch (error) {
+    console.error('Error fetching analytics:', error)
+    alert('Gagal memuat data analytics')
+  } finally {
+    isLoading.value = false
+  }
+}
+
+onMounted(() => {
+  fetchAnalytics()
+})
 </script>

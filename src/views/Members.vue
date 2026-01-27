@@ -28,10 +28,17 @@
       </div>
     </div>
 
+    <!-- Loading State -->
+    <div v-if="isLoading" class="flex items-center justify-center py-12">
+      <div
+        class="w-8 h-8 border-4 border-gray-900 border-t-transparent rounded-full animate-spin"
+      ></div>
+    </div>
+
     <!-- Data Table -->
-    <DataTable :columns="columns" :data="filteredData">
+    <DataTable v-else :columns="columns" :data="filteredData">
       <!-- Custom cell for No -->
-      <template #cell-no="{ row }"> {{ row.no }}. </template>
+      <template #cell-no="{ row }"> {{ membersData.indexOf(row) + 1 }}. </template>
 
       <!-- Custom cell for Action -->
       <template #cell-action="{ row }">
@@ -50,26 +57,41 @@
     >
       <div class="space-y-4">
         <FormInput
-          id="nama"
+          id="name"
           label="Nama"
-          v-model="formData.nama"
-          placeholder="Shopia Elizabeth Turner"
+          v-model="formData.name"
+          placeholder="Sophia Elizabeth Turner"
         />
 
         <FormInput
-          id="jabatan"
+          id="email"
+          label="Email"
+          type="email"
+          v-model="formData.email"
+          placeholder="sophia@email.com"
+        />
+
+        <FormInput
+          v-if="!isEditMode"
+          id="password"
+          label="Password"
+          type="password"
+          v-model="formData.password"
+          placeholder="Minimal 5 karakter"
+        />
+
+        <FormInput
+          id="position"
           label="Jabatan"
-          type="select"
-          v-model="formData.jabatan"
-          :options="jabatanOptions"
+          v-model="formData.position"
+          placeholder="Quality Assurance"
         />
 
         <FormInput
           id="department"
           label="Department"
-          type="select"
           v-model="formData.department"
-          :options="departmentOptions"
+          placeholder="Technology"
         />
       </div>
     </Modal>
@@ -77,7 +99,7 @@
     <!-- Delete Modal -->
     <DeleteModal
       :isOpen="isDeleteModalOpen"
-      :itemName="`${deleteItem?.nama}`"
+      :itemName="`${deleteItem?.name}`"
       @close="closeDeleteModal"
       @confirm="confirmDelete"
     />
@@ -85,7 +107,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { Filter, Plus } from 'lucide-vue-next'
 import DataTable from '../components/DataTable.vue'
 import ActionDropdown from '../components/ActionDropdown.vue'
@@ -93,90 +115,32 @@ import Modal from '../components/Modal.vue'
 import FormInput from '../components/FormInput.vue'
 import DeleteModal from '../components/DeleteModal.vue'
 import SearchBar from '../components/SearchBar.vue'
+import { memberService } from '../services/memberService'
 
 const searchQuery = ref('')
 const isModalOpen = ref(false)
 const isEditMode = ref(false)
-const editingIndex = ref(null)
+const editingId = ref(null)
 const isDeleteModalOpen = ref(false)
 const deleteItem = ref(null)
+const isLoading = ref(false)
+const membersData = ref([])
 
 const formData = ref({
-  nama: '',
-  jabatan: 'Senior Software Engineer',
-  department: 'Technology',
+  name: '',
+  email: '',
+  password: '',
+  position: '',
+  department: '',
 })
-
-const jabatanOptions = [
-  { value: 'Senior Software Engineer', label: 'Senior Software Engineer' },
-  {
-    value: 'Marketing and Communications Executive',
-    label: 'Marketing and Communications Executive',
-  },
-  { value: 'Financial Operations Officer', label: 'Financial Operations Officer' },
-  { value: 'Quality Assurance', label: 'Quality Assurance' },
-  { value: 'Human Resources Manager', label: 'Human Resources Manager' },
-  { value: 'Product Manager', label: 'Product Manager' },
-  { value: 'UX/UI Designer', label: 'UX/UI Designer' },
-  { value: 'DevOps Engineer', label: 'DevOps Engineer' },
-  { value: 'Business Analyst', label: 'Business Analyst' },
-]
-
-const departmentOptions = [
-  { value: 'Technology', label: 'Technology' },
-  { value: 'Marketing', label: 'Marketing' },
-  { value: 'Finance', label: 'Finance' },
-  { value: 'HR', label: 'HR' },
-  { value: 'Design', label: 'Design' },
-  { value: 'Product', label: 'Product' },
-  { value: 'Business', label: 'Business' },
-]
 
 const columns = [
   { key: 'no', label: 'No', headerClass: 'w-16' },
-  { key: 'nama', label: 'Nama' },
-  { key: 'jabatan', label: 'Jabatan' },
+  { key: 'name', label: 'Nama' },
+  { key: 'position', label: 'Jabatan' },
   { key: 'department', label: 'Department' },
   { key: 'action', label: 'Action', headerClass: 'w-20' },
 ]
-
-const membersData = ref([
-  {
-    no: 1,
-    nama: 'Daniel Alexander Carter',
-    jabatan: 'Senior Software Engineer',
-    department: 'Technology',
-  },
-  {
-    no: 2,
-    nama: 'Emily Grace Johnson',
-    jabatan: 'Marketing and Communications Executive',
-    department: 'Marketing',
-  },
-  {
-    no: 3,
-    nama: 'Michael Benjamin Lee',
-    jabatan: 'Financial Operations Officer',
-    department: 'Finance',
-  },
-  {
-    no: 4,
-    nama: 'Sophia Elizabeth Turner',
-    jabatan: 'Quality Assurance',
-    department: 'Technology',
-  },
-  {
-    no: 5,
-    nama: 'Christopher Nathan Adams',
-    jabatan: 'Financial Operations Officer',
-    department: 'Finance',
-  },
-  { no: 6, nama: 'Olivia Marie Rodriguez', jabatan: 'Human Resources Manager', department: 'HR' },
-  { no: 7, nama: 'James William Thompson', jabatan: 'Product Manager', department: 'Product' },
-  { no: 8, nama: 'Isabella Rose Martinez', jabatan: 'UX/UI Designer', department: 'Design' },
-  { no: 9, nama: 'Alexander David Chen', jabatan: 'DevOps Engineer', department: 'Technology' },
-  { no: 10, nama: 'Ava Sophie Anderson', jabatan: 'Business Analyst', department: 'Business' },
-])
 
 const filteredData = computed(() => {
   if (!searchQuery.value) return membersData.value
@@ -184,27 +148,52 @@ const filteredData = computed(() => {
   const query = searchQuery.value.toLowerCase()
   return membersData.value.filter((item) => {
     return (
-      item.nama.toLowerCase().includes(query) ||
-      item.jabatan.toLowerCase().includes(query) ||
-      item.department.toLowerCase().includes(query)
+      item.name?.toLowerCase().includes(query) ||
+      item.position?.toLowerCase().includes(query) ||
+      item.department?.toLowerCase().includes(query) ||
+      item.email?.toLowerCase().includes(query)
     )
   })
 })
 
+// Fetch members
+const fetchMembers = async () => {
+  isLoading.value = true
+  try {
+    const response = await memberService.getAll()
+    if (response.data.success) {
+      membersData.value = response.data.data
+    }
+  } catch (error) {
+    console.error('Error fetching members:', error)
+    alert('Gagal memuat data anggota')
+  } finally {
+    isLoading.value = false
+  }
+}
+
 const openCreateModal = () => {
   isEditMode.value = false
   formData.value = {
-    nama: '',
-    jabatan: 'Senior Software Engineer',
-    department: 'Technology',
+    name: '',
+    email: '',
+    password: '',
+    position: '',
+    department: '',
   }
   isModalOpen.value = true
 }
 
 const handleEdit = (row) => {
   isEditMode.value = true
-  editingIndex.value = membersData.value.findIndex((item) => item.no === row.no)
-  formData.value = { ...row }
+  editingId.value = row.id
+  formData.value = {
+    name: row.name,
+    email: row.email,
+    password: '', // Don't prefill password
+    position: row.position || '',
+    department: row.department || '',
+  }
   isModalOpen.value = true
 }
 
@@ -218,29 +207,52 @@ const closeDeleteModal = () => {
   deleteItem.value = null
 }
 
-const confirmDelete = () => {
-  const index = membersData.value.findIndex((item) => item.no === deleteItem.value.no)
-  membersData.value.splice(index, 1)
-  // Re-number the items
-  membersData.value.forEach((item, idx) => {
-    item.no = idx + 1
-  })
-  closeDeleteModal()
+const confirmDelete = async () => {
+  try {
+    const response = await memberService.delete(deleteItem.value.id)
+    if (response.data.success) {
+      await fetchMembers()
+      closeDeleteModal()
+    }
+  } catch (error) {
+    console.error('Error deleting member:', error)
+    const message = error.response?.data?.message || 'Gagal menghapus data'
+    alert(message)
+  }
 }
 
 const closeModal = () => {
   isModalOpen.value = false
 }
 
-const saveData = () => {
-  if (isEditMode.value) {
-    // Update existing data
-    membersData.value[editingIndex.value] = { ...formData.value }
-  } else {
-    // Add new data
-    const newNo = membersData.value.length + 1
-    membersData.value.push({ ...formData.value, no: newNo })
+const saveData = async () => {
+  try {
+    const payload = { ...formData.value }
+
+    // Remove empty password on edit
+    if (isEditMode.value && !payload.password) {
+      delete payload.password
+    }
+
+    let response
+    if (isEditMode.value) {
+      response = await memberService.update(editingId.value, payload)
+    } else {
+      response = await memberService.create(payload)
+    }
+
+    if (response.data.success) {
+      await fetchMembers()
+      closeModal()
+    }
+  } catch (error) {
+    console.error('Error saving member:', error)
+    const message = error.response?.data?.message || 'Gagal menyimpan data'
+    alert(message)
   }
-  closeModal()
 }
+
+onMounted(() => {
+  fetchMembers()
+})
 </script>

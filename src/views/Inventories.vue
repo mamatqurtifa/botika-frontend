@@ -28,14 +28,31 @@
       </div>
     </div>
 
+    <!-- Loading State -->
+    <div v-if="isLoading" class="flex items-center justify-center py-12">
+      <div
+        class="w-8 h-8 border-4 border-gray-900 border-t-transparent rounded-full animate-spin"
+      ></div>
+    </div>
+
     <!-- Data Table -->
-    <DataTable :columns="columns" :data="filteredData">
+    <DataTable v-else :columns="columns" :data="filteredData">
       <!-- Custom cell for No -->
-      <template #cell-no="{ row }"> {{ row.no }}. </template>
+      <template #cell-no="{ row }"> {{ inventoryData.indexOf(row) + 1 }}. </template>
 
       <!-- Custom cell for Status -->
       <template #cell-status="{ row }">
         <StatusBadge :status="row.status" />
+      </template>
+
+      <!-- Custom cell for Assign -->
+      <template #cell-assign="{ row }">
+        {{ row.assigned_user?.name || '-' }}
+      </template>
+
+      <!-- Custom cell for Department -->
+      <template #cell-department="{ row }">
+        {{ row.assigned_user?.department || '-' }}
       </template>
 
       <!-- Custom cell for Action -->
@@ -55,32 +72,25 @@
     >
       <div class="space-y-4">
         <FormInput
-          id="inventarisId"
-          label="Inventaris ID"
-          v-model="formData.inventarisId"
-          placeholder="INV-1234"
-        />
-
-        <FormInput
-          id="barang"
+          id="item_name"
           label="Barang"
-          v-model="formData.barang"
-          placeholder="Lenovo Region"
+          v-model="formData.item_name"
+          placeholder="Lenovo Legion"
         />
 
         <FormInput id="type" label="Type" v-model="formData.type" placeholder="Laptop" />
 
         <FormInput
-          id="seriaNumber"
+          id="serial_number"
           label="Serial Number"
-          v-model="formData.seriaNumber"
+          v-model="formData.serial_number"
           placeholder="12345678"
         />
 
         <FormInput
-          id="spesifikasi"
+          id="specification"
           label="Spesifikasi"
-          v-model="formData.spesifikasi"
+          v-model="formData.specification"
           placeholder="RAM 12"
         />
 
@@ -94,19 +104,11 @@
 
         <div class="grid grid-cols-2 gap-4">
           <FormInput
-            id="assign"
-            label="Assign"
+            id="assigned_to"
+            label="Assign To"
             type="select"
-            v-model="formData.assign"
-            :options="assignOptions"
-          />
-
-          <FormInput
-            id="department"
-            label="Department"
-            type="select"
-            v-model="formData.department"
-            :options="departmentOptions"
+            v-model="formData.assigned_to"
+            :options="userOptions"
           />
         </div>
       </div>
@@ -115,7 +117,7 @@
     <!-- Delete Modal -->
     <DeleteModal
       :isOpen="isDeleteModalOpen"
-      :itemName="`${deleteItem?.barang} with ID ${deleteItem?.inventarisId}`"
+      :itemName="`${deleteItem?.item_name} (${deleteItem?.serial_number})`"
       @close="closeDeleteModal"
       @confirm="confirmDelete"
     />
@@ -123,7 +125,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { Filter, Plus } from 'lucide-vue-next'
 import DataTable from '../components/DataTable.vue'
 import StatusBadge from '../components/StatusBadge.vue'
@@ -132,151 +134,55 @@ import Modal from '../components/Modal.vue'
 import FormInput from '../components/FormInput.vue'
 import DeleteModal from '../components/DeleteModal.vue'
 import SearchBar from '../components/SearchBar.vue'
+import { inventoryService } from '../services/inventoryService'
 
 const searchQuery = ref('')
 const isModalOpen = ref(false)
 const isEditMode = ref(false)
-const editingIndex = ref(null)
+const editingId = ref(null)
 const isDeleteModalOpen = ref(false)
 const deleteItem = ref(null)
+const isLoading = ref(false)
+const inventoryData = ref([])
+const users = ref([])
 
 const formData = ref({
-  inventarisId: '',
-  barang: '',
+  item_name: '',
   type: '',
-  seriaNumber: '',
-  spesifikasi: '',
+  serial_number: '',
+  specification: '',
   status: 'Baik',
-  assign: 'userA',
-  department: 'Technology',
+  assigned_to: '',
 })
 
 const statusOptions = [
   { value: 'Baik', label: 'Baik' },
   { value: 'Rusak', label: 'Rusak' },
-  { value: 'Tidak Dipakai', label: 'Tidak Dipakai' },
+  { value: 'Tidak dipakai', label: 'Tidak Dipakai' },
   { value: 'Dilelang', label: 'Dilelang' },
 ]
 
-const assignOptions = [
-  { value: 'userA', label: 'UserA' },
-  { value: 'userB', label: 'UserB' },
-  { value: 'userC', label: 'UserC' },
-  { value: 'userD', label: 'UserD' },
-  { value: 'userE', label: 'UserE' },
-]
-
-const departmentOptions = [
-  { value: 'Technology', label: 'Technology' },
-  { value: 'Marketing', label: 'Marketing' },
-  { value: 'Finance', label: 'Finance' },
-  { value: 'HR', label: 'HR' },
-  { value: 'Design', label: 'Design' },
-]
+const userOptions = computed(() => {
+  return [
+    { value: '', label: '- Pilih User -' },
+    ...users.value.map((user) => ({
+      value: user.id,
+      label: `${user.name} (${user.department || 'No Dept'})`,
+    })),
+  ]
+})
 
 const columns = [
   { key: 'no', label: 'No', headerClass: 'w-16' },
-  { key: 'inventarisId', label: 'Inventaris ID' },
-  { key: 'barang', label: 'Barang' },
+  { key: 'item_name', label: 'Barang' },
   { key: 'type', label: 'Type' },
-  { key: 'seriaNumber', label: 'Seria Number' },
-  { key: 'spesifikasi', label: 'Spesifikasi' },
+  { key: 'serial_number', label: 'Serial Number' },
+  { key: 'specification', label: 'Spesifikasi' },
   { key: 'status', label: 'Status' },
   { key: 'assign', label: 'Assign' },
   { key: 'department', label: 'Department' },
   { key: 'action', label: 'Action', headerClass: 'w-20' },
 ]
-
-const inventoryData = ref([
-  {
-    no: 1,
-    inventarisId: 'INV-1234',
-    barang: 'Lenovo Legion',
-    type: 'Laptop',
-    seriaNumber: '123456',
-    spesifikasi: 'RAM 12',
-    status: 'Baik',
-    assign: 'userA',
-    department: 'Technology',
-  },
-  {
-    no: 2,
-    inventarisId: 'INV-1234',
-    barang: 'Lenovo Legion',
-    type: 'Laptop',
-    seriaNumber: '123456',
-    spesifikasi: 'RAM 12',
-    status: 'Rusak',
-    assign: 'userB',
-    department: 'Technology',
-  },
-  {
-    no: 3,
-    inventarisId: 'INV-1234',
-    barang: 'Lenovo Legion',
-    type: 'Laptop',
-    seriaNumber: '123456',
-    spesifikasi: 'RAM 12',
-    status: 'Tidak Dipakai',
-    assign: 'userC',
-    department: 'Technology',
-  },
-  {
-    no: 4,
-    inventarisId: 'INV-1234',
-    barang: 'Lenovo Legion',
-    type: 'Laptop',
-    seriaNumber: '123456',
-    spesifikasi: 'RAM 12',
-    status: 'Dilelang',
-    assign: 'userD',
-    department: 'Technology',
-  },
-  {
-    no: 5,
-    inventarisId: 'INV-1234',
-    barang: 'Lenovo Legion',
-    type: 'Laptop',
-    seriaNumber: '123456',
-    spesifikasi: 'RAM 12',
-    status: 'Dilelang',
-    assign: 'userE',
-    department: 'Technology',
-  },
-  {
-    no: 6,
-    inventarisId: 'INV-1235',
-    barang: 'Dell XPS',
-    type: 'Laptop',
-    seriaNumber: '123457',
-    spesifikasi: 'RAM 16',
-    status: 'Baik',
-    assign: 'userF',
-    department: 'Design',
-  },
-  {
-    no: 7,
-    inventarisId: 'INV-1236',
-    barang: 'MacBook Pro',
-    type: 'Laptop',
-    seriaNumber: '123458',
-    spesifikasi: 'RAM 32',
-    status: 'Baik',
-    assign: 'userG',
-    department: 'Marketing',
-  },
-  {
-    no: 8,
-    inventarisId: 'INV-1237',
-    barang: 'HP Pavilion',
-    type: 'Laptop',
-    seriaNumber: '123459',
-    spesifikasi: 'RAM 8',
-    status: 'Rusak',
-    assign: 'userH',
-    department: 'HR',
-  },
-])
 
 const filteredData = computed(() => {
   if (!searchQuery.value) return inventoryData.value
@@ -284,34 +190,67 @@ const filteredData = computed(() => {
   const query = searchQuery.value.toLowerCase()
   return inventoryData.value.filter((item) => {
     return (
-      item.inventarisId.toLowerCase().includes(query) ||
-      item.barang.toLowerCase().includes(query) ||
-      item.type.toLowerCase().includes(query) ||
-      item.assign.toLowerCase().includes(query) ||
-      item.department.toLowerCase().includes(query)
+      item.item_name?.toLowerCase().includes(query) ||
+      item.type?.toLowerCase().includes(query) ||
+      item.serial_number?.toLowerCase().includes(query) ||
+      item.assigned_user?.name?.toLowerCase().includes(query) ||
+      item.assigned_user?.department?.toLowerCase().includes(query)
     )
   })
 })
 
+// Fetch inventories
+const fetchInventories = async () => {
+  isLoading.value = true
+  try {
+    const response = await inventoryService.getAll()
+    if (response.data.success) {
+      inventoryData.value = response.data.data
+    }
+  } catch (error) {
+    console.error('Error fetching inventories:', error)
+    alert('Gagal memuat data inventaris')
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// Fetch users for dropdown
+const fetchUsers = async () => {
+  try {
+    const response = await inventoryService.getUsers()
+    if (response.data.success) {
+      users.value = response.data.data
+    }
+  } catch (error) {
+    console.error('Error fetching users:', error)
+  }
+}
+
 const openCreateModal = () => {
   isEditMode.value = false
   formData.value = {
-    inventarisId: '',
-    barang: '',
+    item_name: '',
     type: '',
-    seriaNumber: '',
-    spesifikasi: '',
+    serial_number: '',
+    specification: '',
     status: 'Baik',
-    assign: 'userA',
-    department: 'Technology',
+    assigned_to: '',
   }
   isModalOpen.value = true
 }
 
 const handleEdit = (row) => {
   isEditMode.value = true
-  editingIndex.value = inventoryData.value.findIndex((item) => item.no === row.no)
-  formData.value = { ...row }
+  editingId.value = row.id
+  formData.value = {
+    item_name: row.item_name,
+    type: row.type,
+    serial_number: row.serial_number || '',
+    specification: row.specification || '',
+    status: row.status,
+    assigned_to: row.assigned_to || '',
+  }
   isModalOpen.value = true
 }
 
@@ -325,29 +264,49 @@ const closeDeleteModal = () => {
   deleteItem.value = null
 }
 
-const confirmDelete = () => {
-  const index = inventoryData.value.findIndex((item) => item.no === deleteItem.value.no)
-  inventoryData.value.splice(index, 1)
-  // Re-number the items
-  inventoryData.value.forEach((item, idx) => {
-    item.no = idx + 1
-  })
-  closeDeleteModal()
+const confirmDelete = async () => {
+  try {
+    const response = await inventoryService.delete(deleteItem.value.id)
+    if (response.data.success) {
+      await fetchInventories()
+      closeDeleteModal()
+    }
+  } catch (error) {
+    console.error('Error deleting inventory:', error)
+    alert('Gagal menghapus data')
+  }
 }
 
 const closeModal = () => {
   isModalOpen.value = false
 }
 
-const saveData = () => {
-  if (isEditMode.value) {
-    // Update existing data
-    inventoryData.value[editingIndex.value] = { ...formData.value }
-  } else {
-    // Add new data
-    const newNo = inventoryData.value.length + 1
-    inventoryData.value.push({ ...formData.value, no: newNo })
+const saveData = async () => {
+  try {
+    const payload = {
+      ...formData.value,
+      assigned_to: formData.value.assigned_to || null,
+    }
+
+    let response
+    if (isEditMode.value) {
+      response = await inventoryService.update(editingId.value, payload)
+    } else {
+      response = await inventoryService.create(payload)
+    }
+
+    if (response.data.success) {
+      await fetchInventories()
+      closeModal()
+    }
+  } catch (error) {
+    console.error('Error saving inventory:', error)
+    alert('Gagal menyimpan data')
   }
-  closeModal()
 }
+
+onMounted(() => {
+  fetchInventories()
+  fetchUsers()
+})
 </script>

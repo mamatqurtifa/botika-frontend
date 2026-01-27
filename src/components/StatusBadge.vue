@@ -20,7 +20,7 @@ const props = defineProps({
 const statusConfig = {
   Baik: { label: 'Baik', class: 'bg-green-100 text-green-700' },
   Rusak: { label: 'Rusak', class: 'bg-red-100 text-red-700' },
-  'Tidak Dipakai': { label: 'Tidak Dipakai', class: 'bg-gray-100 text-gray-700' },
+  'Tidak dipakai': { label: 'Tidak Dipakai', class: 'bg-gray-100 text-gray-700' },
   Dilelang: { label: 'Dilelang', class: 'bg-orange-100 text-orange-700' },
 }
 
