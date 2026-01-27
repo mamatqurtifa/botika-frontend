@@ -20,12 +20,15 @@
         leave-from-class="opacity-100 scale-100"
         leave-to-class="opacity-0 scale-95"
       >
-        <div v-if="isOpen" class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 text-center">
+        <div
+          v-if="isOpen"
+          class="bg-white rounded-[2.5rem] shadow-xl w-full max-w-sm p-6 text-center"
+        >
           <!-- Icon -->
           <div
-            class="w-16 h-16 bg-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4"
+            class="w-16 h-16 bg-red-500 rounded-3xl flex items-center justify-center mx-auto mb-4"
           >
-            <Trash2 class="w-8 h-8 text-white" />
+            <Trash class="w-8 h-8 text-white" />
           </div>
 
           <!-- Title -->
@@ -60,7 +63,7 @@
 </template>
 
 <script setup>
-import { Trash2 } from 'lucide-vue-next'
+import { Trash } from 'lucide-vue-next'
 
 const props = defineProps({
   isOpen: {

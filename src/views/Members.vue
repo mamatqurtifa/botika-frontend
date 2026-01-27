@@ -103,6 +103,16 @@
       @close="closeDeleteModal"
       @confirm="confirmDelete"
     />
+
+    <!-- Alert Modal -->
+    <AlertModal
+      :isOpen="isAlertOpen"
+      :type="alertConfig.type"
+      :title="alertConfig.title"
+      :message="alertConfig.message"
+      :buttonText="alertConfig.buttonText"
+      @close="closeAlert"
+    />
   </div>
 </template>
 
@@ -115,7 +125,11 @@ import Modal from '../components/Modal.vue'
 import FormInput from '../components/FormInput.vue'
 import DeleteModal from '../components/DeleteModal.vue'
 import SearchBar from '../components/SearchBar.vue'
+import AlertModal from '../components/AlertModal.vue'
 import { memberService } from '../services/memberService'
+import { useAlert } from '../composables/useAlert'
+
+const { isAlertOpen, alertConfig, showError, showSuccess, closeAlert } = useAlert()
 
 const searchQuery = ref('')
 const isModalOpen = ref(false)
@@ -166,7 +180,7 @@ const fetchMembers = async () => {
     }
   } catch (error) {
     console.error('Error fetching members:', error)
-    alert('Gagal memuat data anggota')
+    showError('Gagal memuat data anggota')
   } finally {
     isLoading.value = false
   }
@@ -213,11 +227,12 @@ const confirmDelete = async () => {
     if (response.data.success) {
       await fetchMembers()
       closeDeleteModal()
+      showSuccess('Anggota berhasil dihapus')
     }
   } catch (error) {
     console.error('Error deleting member:', error)
     const message = error.response?.data?.message || 'Gagal menghapus data'
-    alert(message)
+    showError(message)
   }
 }
 
@@ -244,11 +259,12 @@ const saveData = async () => {
     if (response.data.success) {
       await fetchMembers()
       closeModal()
+      showSuccess(isEditMode.value ? 'Anggota berhasil diperbarui' : 'Anggota berhasil ditambahkan')
     }
   } catch (error) {
     console.error('Error saving member:', error)
     const message = error.response?.data?.message || 'Gagal menyimpan data'
-    alert(message)
+    showError(message)
   }
 }
 

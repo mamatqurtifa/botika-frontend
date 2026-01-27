@@ -131,6 +131,16 @@
       @close="closeDeleteModal"
       @confirm="confirmDelete"
     />
+
+    <!-- Alert Modal -->
+    <AlertModal
+      :isOpen="isAlertOpen"
+      :type="alertConfig.type"
+      :title="alertConfig.title"
+      :message="alertConfig.message"
+      :buttonText="alertConfig.buttonText"
+      @close="closeAlert"
+    />
   </div>
 </template>
 
@@ -144,7 +154,11 @@ import Modal from '../components/Modal.vue'
 import FormInput from '../components/FormInput.vue'
 import DeleteModal from '../components/DeleteModal.vue'
 import SearchBar from '../components/SearchBar.vue'
+import AlertModal from '../components/AlertModal.vue'
 import { inventoryService } from '../services/inventoryService'
+import { useAlert } from '../composables/useAlert'
+
+const { isAlertOpen, alertConfig, showError, showSuccess, closeAlert } = useAlert()
 
 const searchQuery = ref('')
 const isModalOpen = ref(false)
@@ -222,7 +236,7 @@ const fetchInventories = async () => {
     }
   } catch (error) {
     console.error('Error fetching inventories:', error)
-    alert('Gagal memuat data inventaris')
+    showError('Gagal memuat data inventaris')
   } finally {
     isLoading.value = false
   }
@@ -237,6 +251,7 @@ const fetchUsers = async () => {
     }
   } catch (error) {
     console.error('Error fetching users:', error)
+    showError('Gagal memuat data user')
   }
 }
 
@@ -285,10 +300,11 @@ const confirmDelete = async () => {
     if (response.data.success) {
       await fetchInventories()
       closeDeleteModal()
+      showSuccess('Data berhasil dihapus')
     }
   } catch (error) {
     console.error('Error deleting inventory:', error)
-    alert('Gagal menghapus data')
+    showError('Gagal menghapus data')
   }
 }
 
@@ -313,10 +329,11 @@ const saveData = async () => {
     if (response.data.success) {
       await fetchInventories()
       closeModal()
+      showSuccess(isEditMode.value ? 'Data berhasil diperbarui' : 'Data berhasil ditambahkan')
     }
   } catch (error) {
     console.error('Error saving inventory:', error)
-    alert('Gagal menyimpan data')
+    showError('Gagal menyimpan data')
   }
 }
 

@@ -50,6 +50,16 @@
         <Bar :data="chartData" :options="chartOptions" />
       </div>
     </template>
+
+    <!-- Alert Modal -->
+    <AlertModal
+      :isOpen="isAlertOpen"
+      :type="alertConfig.type"
+      :title="alertConfig.title"
+      :message="alertConfig.message"
+      :buttonText="alertConfig.buttonText"
+      @close="closeAlert"
+    />
   </div>
 </template>
 
@@ -57,6 +67,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { CheckCircle, AlertTriangle, Tag, XCircle } from 'lucide-vue-next'
 import StatsCard from '../components/StatsCard.vue'
+import AlertModal from '../components/AlertModal.vue'
 import { Bar } from 'vue-chartjs'
 import {
   Chart as ChartJS,
@@ -68,6 +79,9 @@ import {
   Legend,
 } from 'chart.js'
 import { analyticsService } from '../services/analyticsService'
+import { useAlert } from '../composables/useAlert'
+
+const { isAlertOpen, alertConfig, showError, closeAlert } = useAlert()
 
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
@@ -165,7 +179,7 @@ const fetchAnalytics = async () => {
     }
   } catch (error) {
     console.error('Error fetching analytics:', error)
-    alert('Gagal memuat data analytics')
+    showError('Gagal memuat data analytics')
   } finally {
     isLoading.value = false
   }

@@ -4,9 +4,9 @@
     <button
       @click="toggleDropdown"
       ref="triggerRef"
-      class="p-2 hover:bg-gray-100 rounded-lg transition"
+      class="p-2 hover:bg-gray-100 rounded-2xl transition border-2 border-gray-400"
     >
-      <MoreVertical class="w-5 h-5 text-gray-600" />
+      <Ellipsis class="w-5 h-5 text-gray-600" />
     </button>
 
     <!-- Dropdown Menu (using Teleport to body) -->
@@ -45,7 +45,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
-import { MoreVertical } from 'lucide-vue-next'
+import { Ellipsis } from 'lucide-vue-next'
 
 const emit = defineEmits(['edit', 'delete'])
 
