@@ -41,7 +41,7 @@
           <!-- Button -->
           <button
             @click="close"
-            class="w-full px-6 py-3 text-sm font-medium text-white rounded-xl transition"
+            class="w-full px-6 py-3 text-sm font-medium text-white rounded-2xl transition"
             :class="buttonClass"
           >
             {{ buttonText }}
@@ -85,27 +85,27 @@ const emit = defineEmits(['close'])
 const typeConfig = {
   success: {
     icon: CheckCircle2,
-    iconBg: 'bg-green-100',
-    iconColor: 'text-green-600',
-    button: 'bg-green-500 hover:bg-green-600',
+    iconBg: 'bg-green-600',
+    iconColor: 'text-white',
+    button: 'bg-green-600 hover:bg-green-700',
   },
   error: {
     icon: AlertCircle,
-    iconBg: 'bg-red-100',
-    iconColor: 'text-red-600',
-    button: 'bg-red-500 hover:bg-red-600',
+    iconBg: 'bg-red-600',
+    iconColor: 'text-white',
+    button: 'bg-red-600 hover:bg-red-700',
   },
   warning: {
     icon: AlertTriangle,
-    iconBg: 'bg-orange-100',
-    iconColor: 'text-orange-600',
-    button: 'bg-orange-500 hover:bg-orange-600',
+    iconBg: 'bg-orange-600',
+    iconColor: 'text-white',
+    button: 'bg-orange-600 hover:bg-orange-700',
   },
   info: {
     icon: Info,
-    iconBg: 'bg-blue-100',
-    iconColor: 'text-blue-600',
-    button: 'bg-blue-500 hover:bg-blue-600',
+    iconBg: 'bg-blue-600',
+    iconColor: 'text-white',
+    button: 'bg-blue-600 hover:bg-blue-700',
   },
 }
 

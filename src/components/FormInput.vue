@@ -1,11 +1,6 @@
 <template>
   <div class="space-y-2">
-    <label
-      v-if="label"
-      :for="id"
-      class="block text-sm font-medium"
-      :class="focused ? 'text-teal-600' : 'text-gray-700'"
-    >
+    <label :for="id" class="block text-sm font-medium text-[#11B18A]">
       {{ label }}
     </label>
     <input
@@ -14,29 +9,24 @@
       :type="type"
       :value="modelValue"
       @input="$emit('update:modelValue', $event.target.value)"
-      @focus="focused = true"
-      @blur="focused = false"
       :placeholder="placeholder"
       :disabled="disabled"
-      class="w-full px-4 py-3 rounded-xl border-2 outline-none transition bg-teal-50"
-      :class="[
-        focused ? 'border-teal-500 bg-white' : 'border-transparent',
-        disabled ? 'opacity-50 cursor-not-allowed' : '',
-      ]"
+      class="w-full px-4 py-3.5 bg-[#E9F8F4] border-0 rounded-xl text-gray-900 placeholder-gray-400 focus:bg-teal-50 focus:ring-2 focus:ring-teal-400/50 transition-all outline-none"
     />
     <select
       v-else
       :id="id"
       :value="modelValue"
       @change="$emit('update:modelValue', $event.target.value)"
-      @focus="focused = true"
-      @blur="focused = false"
       :disabled="disabled"
-      class="w-full px-4 py-3 rounded-xl border-2 outline-none transition bg-teal-50 appearance-none cursor-pointer"
-      :class="[
-        focused ? 'border-teal-500 bg-white' : 'border-transparent',
-        disabled ? 'opacity-50 cursor-not-allowed' : '',
-      ]"
+      class="w-full px-4 py-3.5 bg-[#E9F8F4] border-0 rounded-xl text-gray-900 focus:bg-teal-50 focus:ring-2 focus:ring-teal-400/50 transition-all outline-none appearance-none cursor-pointer"
+      :style="{
+        backgroundImage: `url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3e%3cpolyline points=\'6 9 12 15 18 9\'%3e%3c/polyline%3e%3c/svg%3e')`,
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'right 1rem center',
+        backgroundSize: '1.25rem',
+        paddingRight: '3rem',
+      }"
     >
       <option v-for="option in options" :key="option.value" :value="option.value">
         {{ option.label }}
@@ -46,16 +36,14 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-
-defineProps({
+const props = defineProps({
   id: {
     type: String,
     required: true,
   },
   label: {
     type: String,
-    default: '',
+    required: true,
   },
   type: {
     type: String,
@@ -79,7 +67,5 @@ defineProps({
   },
 })
 
-defineEmits(['update:modelValue'])
-
-const focused = ref(false)
+const emit = defineEmits(['update:modelValue'])
 </script>

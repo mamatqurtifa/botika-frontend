@@ -10,21 +10,20 @@
           <SearchBar v-model="searchQuery" placeholder="Search Anggota" />
         </div>
 
-        <!-- Filter Button -->
-        <button
-          class="p-3 border border-gray-200 rounded-xl hover:bg-gray-50 bg-gray-50 transition"
-        >
-          <Filter class="w-5 h-5 text-gray-600" />
-        </button>
-
         <!-- Add Button -->
         <button
           @click="openCreateModal"
-          class="flex items-center gap-2 bg-gray-900 text-white px-6 py-3 rounded-xl hover:bg-gray-800 transition text-sm font-medium"
+          class="flex items-center gap-2 bg-gray-900 px-6 py-3 rounded-2xl hover:bg-gray-800 transition text-sm font-medium"
         >
-          <Plus class="w-5 h-5" />
-          Tambah Anggota
-        </button>
+          <span class="bg-inline-flex items-center">
+            <Plus class="w-5 h-5 text-cyan-500" style="stroke: currentColor" />
+          </span>
+          <span
+            class="font-semibold bg-linear-to-r from-cyan-500 to-yellow-500 bg-clip-text text-transparent"
+          >
+            Tambah Data
+          </span></button
+        >``
       </div>
     </div>
 

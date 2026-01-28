@@ -6,7 +6,7 @@
       @input="$emit('update:modelValue', $event.target.value)"
       type="text"
       :placeholder="placeholder"
-      class="pl-12 pr-4 py-3 w-full border border-gray-200 rounded-xl focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none text-sm bg-gray-50 focus:bg-white transition"
+      class="pl-12 pr-4 py-3 w-full border border-gray-200 rounded-2xl focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none text-sm bg-gray-50 focus:bg-white transition"
     />
   </div>
 </template>
