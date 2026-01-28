@@ -1,8 +1,8 @@
-import { defineConfig, globalIgnores } from 'eslint/config'
+import { defineConfig } from 'eslint/config'
 import globals from 'globals'
 import js from '@eslint/js'
 import pluginVue from 'eslint-plugin-vue'
-import skipFormatting from 'eslint-config-prettier/flat'
+import skipFormatting from '@eslint/config-prettier'
 
 export default defineConfig([
   {
@@ -10,9 +10,13 @@ export default defineConfig([
     files: ['**/*.{vue,js,mjs,jsx}'],
   },
 
-  globalIgnores(['**/dist/**', '**/dist-ssr/**', '**/coverage/**']),
+  {
+    name: 'app/files-to-ignore',
+    ignores: ['**/dist/**', '**/dist-ssr/**', '**/coverage/**'],
+  },
 
   {
+    name: 'app/language-options',
     languageOptions: {
       globals: {
         ...globals.browser,
@@ -22,6 +26,18 @@ export default defineConfig([
 
   js.configs.recommended,
   ...pluginVue.configs['flat/essential'],
+
+  {
+    name: 'app/custom-rules',
+    rules: {
+      'vue/multi-word-component-names': [
+        'error',
+        {
+          ignores: ['Login', 'Inventories', 'Members', 'Analytics'],
+        },
+      ],
+    },
+  },
 
   skipFormatting,
 ])

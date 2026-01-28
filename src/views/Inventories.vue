@@ -1,60 +1,33 @@
 <template>
   <div>
-    <!-- Header -->
-    <div class="mb-6 flex items-center justify-between">
-      <h1 class="text-2xl font-bold text-gray-900">Data Inventaris</h1>
-
-      <div class="flex items-center gap-3">
-        <!-- Search -->
-        <div class="w-80">
-          <SearchBar v-model="searchQuery" placeholder="Search Inventaris" />
-        </div>
-
-        <!-- Add Button -->
-        <button
-          @click="openCreateModal"
-          class="flex items-center gap-2 bg-gray-900 px-4 py-3 rounded-2xl hover:bg-gray-800 transition text-sm font-medium"
-        >
-          <span class="bg-inline-flex items-center">
-            <Plus class="w-5 h-5 text-[#6FD0B8]" style="stroke: currentColor" />
-          </span>
-          <span
-            class="font-semibold bg-linear-to-r from-[#6FD0B8] to-[#DFD287] bg-clip-text text-transparent"
-          >
-            Tambah Data
-          </span>
-        </button>
-      </div>
-    </div>
+    <!-- Page Header -->
+    <PageHeader
+      title="Data Inventaris"
+      v-model:searchQuery="searchQuery"
+      searchPlaceholder="Search Inventaris"
+      addButtonText="Tambah Data"
+      @add="openCreateModal"
+    />
 
     <!-- Loading State -->
-    <div v-if="isLoading" class="flex items-center justify-center py-12">
-      <div
-        class="w-8 h-8 border-4 border-gray-900 border-t-transparent rounded-full animate-spin"
-      ></div>
-    </div>
+    <LoadingSpinner v-if="isLoading" />
 
     <!-- Data Table -->
     <DataTable v-else :columns="columns" :data="filteredData">
-      <!-- Custom cell for No -->
-      <template #cell-no="{ row }"> {{ inventoryData.indexOf(row) + 1 }}. </template>
+      <template #cell-no="{ row }"> {{ data.indexOf(row) + 1 }}. </template>
 
-      <!-- Custom cell for Status -->
       <template #cell-status="{ row }">
         <StatusBadge :status="row.status" />
       </template>
 
-      <!-- Custom cell for Assign -->
       <template #cell-assign="{ row }">
         {{ row.assigned_user?.name || '-' }}
       </template>
 
-      <!-- Custom cell for Department -->
       <template #cell-department="{ row }">
         {{ row.assigned_user?.department || '-' }}
       </template>
 
-      <!-- Custom cell for Action -->
       <template #cell-action="{ row }">
         <ActionDropdown @edit="handleEdit(row)" @delete="openDeleteModal(row)" />
       </template>
@@ -70,7 +43,6 @@
       @save="saveData"
     >
       <div class="space-y-4">
-        <!-- Show Inventory ID when editing -->
         <div v-if="isEditMode && currentInventoryId" class="space-y-2">
           <label class="block text-sm font-medium text-gray-700">Inventaris ID</label>
           <input
@@ -111,15 +83,13 @@
           :options="statusOptions"
         />
 
-        <div class="grid grid-cols-2 gap-4">
-          <FormInput
-            id="assigned_to"
-            label="Assign To"
-            type="select"
-            v-model="formData.assigned_to"
-            :options="userOptions"
-          />
-        </div>
+        <FormInput
+          id="assigned_to"
+          label="Assign To"
+          type="select"
+          v-model="formData.assigned_to"
+          :options="userOptions"
+        />
       </div>
     </Modal>
 
@@ -145,100 +115,90 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { Filter, Plus } from 'lucide-vue-next'
+import PageHeader from '../components/PageHeader.vue'
+import LoadingSpinner from '../components/LoadingSpinner.vue'
 import DataTable from '../components/DataTable.vue'
 import StatusBadge from '../components/StatusBadge.vue'
 import ActionDropdown from '../components/ActionDropdown.vue'
 import Modal from '../components/Modal.vue'
 import FormInput from '../components/FormInput.vue'
 import DeleteModal from '../components/DeleteModal.vue'
-import SearchBar from '../components/SearchBar.vue'
 import AlertModal from '../components/AlertModal.vue'
 import { inventoryService } from '../services/inventoryService'
+import { useCrud } from '../composables/useCrud'
 import { useAlert } from '../composables/useAlert'
 
-const { isAlertOpen, alertConfig, showError, showSuccess, closeAlert } = useAlert()
+const { isAlertOpen, alertConfig, showError, closeAlert } = useAlert()
 
-const searchQuery = ref('')
-const isModalOpen = ref(false)
-const isEditMode = ref(false)
-const editingId = ref(null)
-const currentInventoryId = ref('')
-const isDeleteModalOpen = ref(false)
-const deleteItem = ref(null)
-const isLoading = ref(false)
-const inventoryData = ref([])
+// Additional state for inventory-specific data
 const users = ref([])
+const currentInventoryId = ref('')
 
-const formData = ref({
-  item_name: '',
-  type: '',
-  serial_number: '',
-  specification: '',
-  status: 'Baik',
-  assigned_to: '',
+// CRUD composable
+const {
+  data,
+  isLoading,
+  searchQuery,
+  isModalOpen,
+  isEditMode,
+  editingId,
+  isDeleteModalOpen,
+  deleteItem,
+  formData,
+  filteredData,
+  fetchData,
+  openCreateModal: baseOpenCreateModal,
+  handleEdit: baseHandleEdit,
+  openDeleteModal,
+  closeDeleteModal,
+  confirmDelete,
+  closeModal,
+  saveData: baseSaveData,
+} = useCrud(inventoryService, {
+  entityName: 'Inventaris',
+  initialFormData: {
+    item_name: '',
+    type: '',
+    serial_number: '',
+    specification: '',
+    status: 'Baik',
+    assigned_to: '',
+  },
+  searchFields: [
+    'inventory_id',
+    'item_name',
+    'type',
+    'serial_number',
+    'assigned_user.name',
+    'assigned_user.department',
+  ],
+  mapToForm: (row) => ({
+    item_name: row.item_name,
+    type: row.type,
+    serial_number: row.serial_number || '',
+    specification: row.specification || '',
+    status: row.status,
+    assigned_to: row.assigned_to || '',
+  }),
+  beforeSave: (payload) => ({
+    ...payload,
+    assigned_to: payload.assigned_to || null,
+  }),
 })
 
-const statusOptions = [
-  { value: 'Baik', label: 'Baik' },
-  { value: 'Rusak', label: 'Rusak' },
-  { value: 'Tidak dipakai', label: 'Tidak Dipakai' },
-  { value: 'Dilelang', label: 'Dilelang' },
-]
+// Override methods with additional logic
+const openCreateModal = () => {
+  currentInventoryId.value = ''
+  baseOpenCreateModal()
+}
 
-const userOptions = computed(() => {
-  return [
-    { value: '', label: '- Pilih User -' },
-    ...users.value.map((user) => ({
-      value: user.id,
-      label: `${user.name} (${user.department || 'No Dept'})`,
-    })),
-  ]
-})
+const handleEdit = (row) => {
+  currentInventoryId.value = row.inventory_id
+  baseHandleEdit(row)
+}
 
-const columns = [
-  { key: 'no', label: 'No', headerClass: 'w-16' },
-  { key: 'inventory_id', label: 'Inventaris ID' },
-  { key: 'item_name', label: 'Barang' },
-  { key: 'type', label: 'Type' },
-  { key: 'serial_number', label: 'Serial Number' },
-  { key: 'specification', label: 'Spesifikasi' },
-  { key: 'status', label: 'Status' },
-  { key: 'assign', label: 'Assign' },
-  { key: 'department', label: 'Department' },
-  { key: 'action', label: 'Action', headerClass: 'w-20' },
-]
-
-const filteredData = computed(() => {
-  if (!searchQuery.value) return inventoryData.value
-
-  const query = searchQuery.value.toLowerCase()
-  return inventoryData.value.filter((item) => {
-    return (
-      item.inventory_id?.toLowerCase().includes(query) ||
-      item.item_name?.toLowerCase().includes(query) ||
-      item.type?.toLowerCase().includes(query) ||
-      item.serial_number?.toLowerCase().includes(query) ||
-      item.assigned_user?.name?.toLowerCase().includes(query) ||
-      item.assigned_user?.department?.toLowerCase().includes(query)
-    )
-  })
-})
-
-// Fetch inventories
-const fetchInventories = async () => {
-  isLoading.value = true
-  try {
-    const response = await inventoryService.getAll()
-    if (response.data.success) {
-      inventoryData.value = response.data.data
-    }
-  } catch (error) {
-    console.error('Error fetching inventories:', error)
-    showError('Gagal memuat data inventaris')
-  } finally {
-    isLoading.value = false
-  }
+const saveData = async () => {
+  await baseSaveData()
 }
 
 // Fetch users for dropdown
@@ -254,90 +214,36 @@ const fetchUsers = async () => {
   }
 }
 
-const openCreateModal = () => {
-  isEditMode.value = false
-  currentInventoryId.value = ''
-  formData.value = {
-    item_name: '',
-    type: '',
-    serial_number: '',
-    specification: '',
-    status: 'Baik',
-    assigned_to: '',
-  }
-  isModalOpen.value = true
-}
+const statusOptions = [
+  { value: 'Baik', label: 'Baik' },
+  { value: 'Rusak', label: 'Rusak' },
+  { value: 'Tidak dipakai', label: 'Tidak Dipakai' },
+  { value: 'Dilelang', label: 'Dilelang' },
+]
 
-const handleEdit = (row) => {
-  isEditMode.value = true
-  editingId.value = row.id
-  currentInventoryId.value = row.inventory_id
-  formData.value = {
-    item_name: row.item_name,
-    type: row.type,
-    serial_number: row.serial_number || '',
-    specification: row.specification || '',
-    status: row.status,
-    assigned_to: row.assigned_to || '',
-  }
-  isModalOpen.value = true
-}
+const userOptions = computed(() => [
+  { value: '', label: '- Pilih User -' },
+  ...users.value.map((user) => ({
+    value: user.id,
+    label: `${user.name} (${user.department || 'No Dept'})`,
+  })),
+])
 
-const openDeleteModal = (row) => {
-  deleteItem.value = row
-  isDeleteModalOpen.value = true
-}
-
-const closeDeleteModal = () => {
-  isDeleteModalOpen.value = false
-  deleteItem.value = null
-}
-
-const confirmDelete = async () => {
-  try {
-    const response = await inventoryService.delete(deleteItem.value.id)
-    if (response.data.success) {
-      await fetchInventories()
-      closeDeleteModal()
-      showSuccess('Data berhasil dihapus')
-    }
-  } catch (error) {
-    console.error('Error deleting inventory:', error)
-    showError('Gagal menghapus data')
-  }
-}
-
-const closeModal = () => {
-  isModalOpen.value = false
-}
-
-const saveData = async () => {
-  try {
-    const payload = {
-      ...formData.value,
-      assigned_to: formData.value.assigned_to || null,
-    }
-
-    let response
-    if (isEditMode.value) {
-      response = await inventoryService.update(editingId.value, payload)
-    } else {
-      response = await inventoryService.create(payload)
-    }
-
-    if (response.data.success) {
-      await fetchInventories()
-      closeModal()
-      showSuccess(isEditMode.value ? 'Data berhasil diperbarui' : 'Data berhasil ditambahkan')
-    }
-  } catch (error) {
-    console.error('Error saving inventory:', error)
-    showError('Gagal menyimpan data')
-  }
-}
+const columns = [
+  { key: 'no', label: 'No', headerClass: 'w-16' },
+  { key: 'inventory_id', label: 'Inventaris ID' },
+  { key: 'item_name', label: 'Barang' },
+  { key: 'type', label: 'Type' },
+  { key: 'serial_number', label: 'Serial Number' },
+  { key: 'specification', label: 'Spesifikasi' },
+  { key: 'status', label: 'Status' },
+  { key: 'assign', label: 'Assign' },
+  { key: 'department', label: 'Department' },
+  { key: 'action', label: 'Action', headerClass: 'w-20' },
+]
 
 onMounted(() => {
-  fetchInventories()
+  fetchData()
   fetchUsers()
 })
 </script>
