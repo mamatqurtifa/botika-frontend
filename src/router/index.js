@@ -42,17 +42,14 @@ const router = createRouter({
   ],
 })
 
-// Navigation Guards
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('access_token')
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
   const isGuest = to.matched.some((record) => record.meta.guest)
 
   if (requiresAuth && !token) {
-    // Butuh auth tapi belum login -> redirect ke login
     next('/login')
   } else if (isGuest && token) {
-    // Sudah login tapi akses halaman guest (login) -> redirect ke inventories
     next('/inventories')
   } else {
     next()

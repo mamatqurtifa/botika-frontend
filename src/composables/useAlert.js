@@ -33,7 +33,6 @@ export function useAlert() {
     return titles[type] || 'Informasi'
   }
 
-  // Shorthand methods
   const showSuccess = (message, title) => {
     showAlert({ type: 'success', message, title })
   }

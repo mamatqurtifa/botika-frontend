@@ -1,19 +1,14 @@
 <template>
   <div>
-    <!-- Page Title -->
     <div class="mb-6">
       <h1 class="text-2xl font-bold text-gray-900">Analytics</h1>
     </div>
 
-    <!-- Loading State -->
     <LoadingSpinner v-if="isLoading" />
 
-    <!-- Analytics Content -->
     <template v-else>
-      <!-- Stats Grid -->
       <StatsGrid :stats="statsData" />
 
-      <!-- Bar Chart -->
       <BarChart
         :data="chartData"
         :labels="chartLabels"
@@ -23,7 +18,6 @@
       />
     </template>
 
-    <!-- Alert Modal -->
     <AlertModal
       :isOpen="isAlertOpen"
       :type="alertConfig.type"
@@ -48,7 +42,6 @@ import { analyticsStatsConfig, chartLabels, chartConfig } from '../config/analyt
 const { isAlertOpen, alertConfig, closeAlert } = useAlert()
 const { isLoading, analyticsData, chartData, fetchAnalytics } = useAnalytics()
 
-// Map stats config with actual data
 const statsData = computed(() => {
   return analyticsStatsConfig.map((stat) => ({
     ...stat,

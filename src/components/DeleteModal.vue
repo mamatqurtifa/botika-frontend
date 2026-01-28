@@ -24,24 +24,20 @@
           v-if="isOpen"
           class="bg-white rounded-[2.5rem] shadow-xl w-full max-w-sm p-6 text-center"
         >
-          <!-- Icon -->
           <div
             class="w-16 h-16 bg-red-500 rounded-3xl flex items-center justify-center mx-auto mb-4"
           >
             <Trash class="w-8 h-8 text-white" />
           </div>
 
-          <!-- Title -->
           <h2 class="text-xl font-bold text-gray-900 mb-2">Delete Data</h2>
 
-          <!-- Description -->
           <p class="text-sm text-gray-600 mb-6">
             Are you sure you want to delete
             <span class="font-semibold text-gray-900">{{ itemName }}</span
             >? This action cannot be undone.
           </p>
 
-          <!-- Buttons -->
           <div class="space-y-3">
             <button
               @click="$emit('confirm')"

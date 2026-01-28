@@ -1,9 +1,7 @@
 <template>
   <div class="bg-[#F6F7FB] rounded-3xl p-3 space-y-2 border border-gray-200">
-    <!-- User Profile -->
     <UserProfile :userName="userName" :userEmail="userEmail" :avatarUrl="avatarUrl" />
 
-    <!-- Dark Theme Toggle -->
     <ToggleSwitch
       v-model="isDarkModeLocal"
       label="Dark Theme"
@@ -11,7 +9,6 @@
       activeColor="bg-[#31738F]"
     />
 
-    <!-- Logout Button -->
     <MenuButton label="Logout" :icon="LogOut" @click="$emit('logout')" />
   </div>
 </template>

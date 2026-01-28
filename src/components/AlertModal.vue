@@ -24,7 +24,6 @@
           v-if="isOpen"
           class="bg-white rounded-[2.5rem] shadow-xl w-full max-w-sm p-6 text-center"
         >
-          <!-- Icon -->
           <div
             class="w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-4"
             :class="iconBgClass"
@@ -32,13 +31,10 @@
             <component :is="iconComponent" class="w-8 h-8" :class="iconColorClass" />
           </div>
 
-          <!-- Title -->
           <h2 class="text-xl font-bold text-gray-900 mb-2">{{ title }}</h2>
 
-          <!-- Message -->
           <p class="text-sm text-gray-600 mb-6">{{ message }}</p>
 
-          <!-- Button -->
           <button
             @click="close"
             class="w-full px-6 py-3 text-sm font-medium text-white rounded-2xl transition"

@@ -3,7 +3,6 @@
     <h1 class="text-2xl font-bold text-gray-900">{{ title }}</h1>
 
     <div class="flex items-center gap-3">
-      <!-- Search -->
       <div class="w-80">
         <SearchBar
           :modelValue="searchQuery"
@@ -12,7 +11,6 @@
         />
       </div>
 
-      <!-- Add Button -->
       <button
         @click="$emit('add')"
         class="flex items-center gap-2 bg-gray-900 px-6 py-3 rounded-2xl hover:bg-gray-800 transition text-sm font-medium"

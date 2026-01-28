@@ -24,7 +24,6 @@
           v-if="isOpen"
           class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col"
         >
-          <!-- Header -->
           <div class="px-8 py-6 flex items-start justify-between">
             <div>
               <h2 class="text-2xl font-semibold text-gray-900">{{ title }}</h2>
@@ -38,14 +37,12 @@
             </button>
           </div>
 
-          <!-- Content -->
           <div class="flex-1 overflow-y-auto px-8 pb-6">
             <div class="space-y-4">
               <slot></slot>
             </div>
           </div>
 
-          <!-- Footer -->
           <div class="px-8 py-5 flex items-center justify-end gap-3">
             <button
               @click="closeModal"

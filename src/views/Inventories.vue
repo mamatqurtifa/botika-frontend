@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!-- Page Header -->
     <PageHeader
       title="Data Inventaris"
       v-model:searchQuery="searchQuery"
@@ -9,10 +8,8 @@
       @add="openCreateModal"
     />
 
-    <!-- Loading State -->
     <LoadingSpinner v-if="isLoading" />
 
-    <!-- Data Table -->
     <DataTable v-else :columns="columns" :data="filteredData">
       <template #cell-no="{ row }"> {{ data.indexOf(row) + 1 }}. </template>
 
@@ -33,7 +30,6 @@
       </template>
     </DataTable>
 
-    <!-- Edit/Create Modal -->
     <Modal
       :isOpen="isModalOpen"
       :title="isEditMode ? 'Edit Data' : 'Tambah Data'"
@@ -93,7 +89,6 @@
       </div>
     </Modal>
 
-    <!-- Delete Modal -->
     <DeleteModal
       :isOpen="isDeleteModalOpen"
       :itemName="`${deleteItem?.item_name} (${deleteItem?.inventory_id})`"
@@ -101,7 +96,6 @@
       @confirm="confirmDelete"
     />
 
-    <!-- Alert Modal -->
     <AlertModal
       :isOpen="isAlertOpen"
       :type="alertConfig.type"
@@ -130,11 +124,9 @@ import { useAlert } from '../composables/useAlert'
 
 const { isAlertOpen, alertConfig, showError, closeAlert } = useAlert()
 
-// Additional state for inventory-specific data
 const users = ref([])
 const currentInventoryId = ref('')
 
-// CRUD composable
 const {
   data,
   isLoading,
@@ -186,7 +178,6 @@ const {
   }),
 })
 
-// Override methods with additional logic
 const openCreateModal = () => {
   currentInventoryId.value = ''
   baseOpenCreateModal()
@@ -201,7 +192,6 @@ const saveData = async () => {
   await baseSaveData()
 }
 
-// Fetch users for dropdown
 const fetchUsers = async () => {
   try {
     const response = await inventoryService.getUsers()

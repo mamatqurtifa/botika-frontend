@@ -1,6 +1,5 @@
 <template>
   <div class="bg-white rounded-lg overflow-hidden">
-    <!-- Table -->
     <div class="overflow-x-auto">
       <table class="w-full">
         <thead>
@@ -32,7 +31,6 @@
       </table>
     </div>
 
-    <!-- Pagination -->
     <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
       <div class="flex items-center gap-2">
         <span class="text-sm text-gray-700">Showing</span>

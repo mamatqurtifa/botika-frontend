@@ -1,6 +1,5 @@
 <template>
   <div class="relative" ref="dropdownRef">
-    <!-- Trigger Button -->
     <button
       @click="toggleDropdown"
       ref="triggerRef"
@@ -9,7 +8,6 @@
       <Ellipsis class="w-5 h-5 text-gray-600" />
     </button>
 
-    <!-- Dropdown Menu (using Teleport to body) -->
     <Teleport to="body">
       <Transition
         enter-active-class="transition ease-out duration-100"
@@ -63,12 +61,11 @@ const menuStyle = computed(() => ({
 const updateMenuPosition = () => {
   if (triggerRef.value) {
     const rect = triggerRef.value.getBoundingClientRect()
-    const menuWidth = 128 // w-32 = 8rem = 128px
+    const menuWidth = 128
 
-    // Position menu to the left of the trigger button
     menuPosition.value = {
-      top: rect.bottom + 8, // 8px below the button
-      left: rect.right - menuWidth, // Align right edge with button
+      top: rect.bottom + 8,
+      left: rect.right - menuWidth,
     }
   }
 }
@@ -103,7 +100,6 @@ const handleClickOutside = (event) => {
 
 watch(isOpen, (newVal) => {
   if (newVal) {
-    // Update position when opened
     setTimeout(updateMenuPosition, 0)
   }
 })

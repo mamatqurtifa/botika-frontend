@@ -13,7 +13,6 @@ export function useAnalytics() {
     dilelang: 0,
   })
 
-  // Fetch analytics data
   const fetchAnalytics = async () => {
     isLoading.value = true
     try {
@@ -29,7 +28,6 @@ export function useAnalytics() {
     }
   }
 
-  // Chart data computed
   const chartData = computed(() => ({
     baik: analyticsData.value.baik || 0,
     rusak: analyticsData.value.rusak || 0,

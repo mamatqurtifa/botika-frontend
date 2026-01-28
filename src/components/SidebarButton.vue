@@ -11,7 +11,6 @@
       <span class="text-sm font-medium">{{ label }}</span>
     </div>
 
-    <!-- Indicator Line -->
     <div v-if="isActive" class="w-1 h-3 bg-gray-900 rounded-full"></div>
   </RouterLink>
 </template>

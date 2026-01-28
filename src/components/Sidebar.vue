@@ -1,14 +1,11 @@
 <template>
   <aside class="w-64 bg-white border-r border-gray-200 flex flex-col">
-    <!-- Logo -->
     <div class="p-6">
       <LogoBrand size="md" />
     </div>
 
-    <!-- Navigation -->
     <NavigationMenu :items="menuItems" />
 
-    <!-- User Section -->
     <div class="p-4">
       <UserMenu
         :userName="authStore.user?.name"

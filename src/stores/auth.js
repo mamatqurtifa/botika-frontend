@@ -9,7 +9,6 @@ export const useAuthStore = defineStore('auth', () => {
 
   const isAuthenticated = computed(() => !!token.value)
 
-  // Load user from localStorage on init
   const loadUser = () => {
     const savedUser = localStorage.getItem('user')
     if (savedUser) {
@@ -17,7 +16,6 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  // Login
   const login = async (credentials) => {
     try {
       const response = await apiClient.post('/login', credentials)
@@ -25,11 +23,9 @@ export const useAuthStore = defineStore('auth', () => {
       if (response.data.success) {
         const { access_token } = response.data.data
 
-        // Save token
         token.value = access_token
         localStorage.setItem('access_token', access_token)
 
-        // Fetch user data
         await fetchUser()
 
         return { success: true }
@@ -43,7 +39,6 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  // Fetch current user
   const fetchUser = async () => {
     try {
       const response = await apiClient.get('/me')
@@ -58,14 +53,12 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  // Logout
   const logout = async () => {
     try {
       await apiClient.post('/logout')
     } catch (error) {
       console.error('Logout error:', error)
     } finally {
-      // Clear state
       user.value = null
       token.value = null
       localStorage.removeItem('access_token')
@@ -75,7 +68,6 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  // Initialize store
   loadUser()
 
   return {

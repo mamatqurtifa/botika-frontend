@@ -14,7 +14,6 @@ export function useCrud(service, config = {}) {
   const deleteItem = ref(null)
   const formData = ref({ ...config.initialFormData })
 
-  // Filtered data based on search
   const filteredData = computed(() => {
     if (!searchQuery.value) return data.value
 
@@ -27,7 +26,6 @@ export function useCrud(service, config = {}) {
     })
   })
 
-  // Fetch all data
   const fetchData = async () => {
     isLoading.value = true
     try {
@@ -43,7 +41,6 @@ export function useCrud(service, config = {}) {
     }
   }
 
-  // Open create modal
   const openCreateModal = () => {
     isEditMode.value = false
     formData.value = { ...config.initialFormData }
@@ -53,7 +50,6 @@ export function useCrud(service, config = {}) {
     isModalOpen.value = true
   }
 
-  // Open edit modal
   const handleEdit = (row) => {
     isEditMode.value = true
     editingId.value = row.id
@@ -64,19 +60,16 @@ export function useCrud(service, config = {}) {
     isModalOpen.value = true
   }
 
-  // Open delete modal
   const openDeleteModal = (row) => {
     deleteItem.value = row
     isDeleteModalOpen.value = true
   }
 
-  // Close delete modal
   const closeDeleteModal = () => {
     isDeleteModalOpen.value = false
     deleteItem.value = null
   }
 
-  // Confirm delete
   const confirmDelete = async () => {
     try {
       const response = await service.delete(deleteItem.value.id)
@@ -92,12 +85,10 @@ export function useCrud(service, config = {}) {
     }
   }
 
-  // Close modal
   const closeModal = () => {
     isModalOpen.value = false
   }
 
-  // Save data (create or update)
   const saveData = async () => {
     try {
       const payload = config.beforeSave

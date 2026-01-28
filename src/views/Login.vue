@@ -9,7 +9,6 @@
         <p class="text-gray-600 mt-2 text-sm">Silakan login untuk melanjutkan</p>
       </div>
 
-      <!-- Error Message -->
       <div
         v-if="errorMessage"
         class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600"
