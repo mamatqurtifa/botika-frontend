@@ -2,13 +2,14 @@ import axios from 'axios'
 import router from '../router'
 
 const apiClient = axios.create({
-  baseURL: 'http://localhost:8000/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json',
   },
 })
 
+// Request interceptor - tambahkan token pada setiap request
 apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('access_token')
@@ -22,6 +23,7 @@ apiClient.interceptors.request.use(
   },
 )
 
+// Response interceptor - handle untuk error 401/unauthorized
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -34,7 +36,7 @@ apiClient.interceptors.response.use(
         const refreshToken = localStorage.getItem('refresh_token')
         if (refreshToken) {
           const response = await axios.post(
-            'http://localhost:8000/api/refresh',
+            `${import.meta.env.VITE_API_BASE_URL}/refresh`,
             {},
             {
               headers: {
