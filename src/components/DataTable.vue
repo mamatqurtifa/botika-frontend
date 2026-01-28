@@ -38,7 +38,7 @@
         <span class="text-sm text-gray-700">Showing</span>
         <select
           v-model="itemsPerPage"
-          class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+          class="px-2 py-2 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
         >
           <option :value="5">5</option>
           <option :value="10">10</option>

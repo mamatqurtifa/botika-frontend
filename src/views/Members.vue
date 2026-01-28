@@ -16,10 +16,10 @@
           class="flex items-center gap-2 bg-gray-900 px-6 py-3 rounded-2xl hover:bg-gray-800 transition text-sm font-medium"
         >
           <span class="bg-inline-flex items-center">
-            <Plus class="w-5 h-5 text-cyan-500" style="stroke: currentColor" />
+            <Plus class="w-5 h-5 text-[#6FD0B8]" style="stroke: currentColor" />
           </span>
           <span
-            class="font-semibold bg-linear-to-r from-cyan-500 to-yellow-500 bg-clip-text text-transparent"
+            class="font-semibold bg-linear-to-r from-[#6FD0B8] to-[#DFD287] bg-clip-text text-transparent"
           >
             Tambah Data
           </span></button
